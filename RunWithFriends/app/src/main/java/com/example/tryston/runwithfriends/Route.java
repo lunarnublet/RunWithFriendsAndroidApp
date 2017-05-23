@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 public class Route {
     ArrayList<LatLng> points;
+    float distance;
     public Route(ArrayList<LatLng> points)
     {
         this.points = points;
