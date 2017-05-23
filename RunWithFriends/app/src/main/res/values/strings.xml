@@ -16,4 +16,5 @@
         completions."
     </string>
     <string name="title_activity_create_route">Map</string>
+    <string name="go">go</string>
 </resources>

@@ -2,6 +2,7 @@ package com.example.tryston.runwithfriends;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Criteria;
@@ -16,6 +17,7 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -25,6 +27,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Cap;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -47,6 +51,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     LocationManager locationManager;
     LocationListener locationListener;
+
+    LatLng currentLocation;
+    Route currentRoute;
+    Circle removableCircle;
 
 
     @Override
@@ -79,7 +87,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onLocationChanged(Location location) {
                 //new method for location
-                centerOnMapLocation(location);
+                userLocationChanged(location);
             }
 
             @Override
@@ -97,6 +105,23 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         };
+
+        // Enable MyLocation Button in the Map
+//            mMap.setMyLocationEnabled(true);
+//            mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+//                @Override
+//                public boolean onMyLocationButtonClick() {
+//                    try
+//                    {
+//                        mMap.setMyLocationEnabled(true);
+//                    }
+//                    catch (SecurityException e)
+//                    {
+//                        Log.e("OnMyLocationButtonClick", )
+//                    }
+//                    return false;
+//                }
+//            });
         mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
         // Add a marker in Sydney and move the camera
         mMap.setMinZoomPreference(10);
@@ -108,32 +133,69 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             if ((ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
                 Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                centerOnMapLocation(lastLocation);
+                currentLocation = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
+                createDot();
+                moveCameraToCurrentLocation();
             } else {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             }
         }
-        mMap.setMyLocationEnabled(true);
+
     }
 
-    public void centerOnMapLocation(Location location)
+    public void createDot()
     {
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        mMap.clear();
-        mMap.addMarker(new MarkerOptions().position(latLng).title("yourlocation"));
+        CircleOptions c = new CircleOptions();
+        CircleOptions circleOptions = new CircleOptions();
+        circleOptions.center(currentLocation);
+        circleOptions.fillColor(Color.rgb(0,206,209));
+        circleOptions.radius(9);
+        circleOptions.strokeColor(Color.rgb(0,139,139));
+        circleOptions.strokeWidth(7);
+        removableCircle = mMap.addCircle(circleOptions);
+    }
+
+    public void moveDot()
+    {
+        removableCircle.remove();
+        createDot();
+    }
+
+    public void moveCameraToCurrentLocation()
+    {
         CameraPosition position = new CameraPosition.Builder()
-                .target(latLng)      // Sets the center of the map to location user
+                .target(currentLocation)      // Sets the center of the map to location user
                 .zoom(17)                   // Sets the zoom
                 .bearing(0)                // Sets the orientation of the camera to east
-                .tilt(50)                   // Sets the tilt of the camera to 30 degrees
+                .tilt(0)                   // Sets the tilt of the camera to 30 degrees
                 .build();                   // Creates a CameraPosition from the builder
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(position));
     }
 
-    @Override
-    public void Selected(Route route) {
-
+    public void userLocationChanged(Location location)
+    {
+        currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+        moveDot();
     }
 
+    @Override
+    public void Selected(Route route) {
+        currentRoute = route;
+    }
+
+    public void OnNewRoute(View view)
+    {
+        Intent intent = new Intent(this, CreateRouteActivity.class);
+        double lat = currentLocation.latitude;
+        double lon = currentLocation.longitude;
+        intent.putExtra("latitude", lat);
+        intent.putExtra("longitude", lon);
+        startActivity(intent);
+    }
+
+    public void OnCenterButtonClicked(View view)
+    {
+        moveCameraToCurrentLocation();
+    }
 
 }

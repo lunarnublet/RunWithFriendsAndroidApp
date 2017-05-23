@@ -1,5 +1,6 @@
 package com.example.tryston.runwithfriends;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -13,6 +14,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -33,6 +35,7 @@ public class CreateRouteActivity extends FragmentActivity implements OnMapReadyC
 
     private GoogleMap mMap;
     ArrayList<LatLng> markerPoints;
+    LatLng recievedLocation;
 
 
     @Override
@@ -45,7 +48,31 @@ public class CreateRouteActivity extends FragmentActivity implements OnMapReadyC
         mapFragment.getMapAsync(this);
 
         markerPoints = new ArrayList<>();
+        Intent i = getIntent();
+        double lat = i.getDoubleExtra("latitude", 0);
+        double lon = i.getDoubleExtra("longitude", 0);
+        recievedLocation = new LatLng(lat, lon);
 
+    }
+
+    public void centerOnMapLocation()
+    {
+        mMap.clear();
+        CircleOptions c = new CircleOptions();
+        CircleOptions circleOptions = new CircleOptions();
+        circleOptions.center(recievedLocation);
+        circleOptions.fillColor(Color.rgb(0,206,209));
+        circleOptions.radius(9);
+        circleOptions.strokeColor(Color.rgb(0,139,139));
+        circleOptions.strokeWidth(7);
+        mMap.addCircle(circleOptions);
+        CameraPosition position = new CameraPosition.Builder()
+                .target(recievedLocation)      // Sets the center of the map to location user
+                .zoom(17)                   // Sets the zoom
+                .bearing(0)                // Sets the orientation of the camera to east
+                .tilt(0)                   // Sets the tilt of the camera to 30 degrees
+                .build();                   // Creates a CameraPosition from the builder
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(position));
     }
 
 
@@ -61,29 +88,10 @@ public class CreateRouteActivity extends FragmentActivity implements OnMapReadyC
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        centerOnMapLocation();
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
         if(mMap!=null){
-
-            // Enable MyLocation Button in the Map
-//            mMap.setMyLocationEnabled(true);
-//            mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
-//                @Override
-//                public boolean onMyLocationButtonClick() {
-//                    try
-//                    {
-//                        mMap.setMyLocationEnabled(true);
-//                    }
-//                    catch (SecurityException e)
-//                    {
-//                        Log.e("OnMyLocationButtonClick", )
-//                    }
-//                    return false;
-//                }
-//            });
 
             // Setting onclick event listener for the map
             mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
