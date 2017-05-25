@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
@@ -18,6 +19,8 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -33,8 +36,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,6 +50,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback, RouteSelection {
 
@@ -55,6 +63,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     LatLng currentLocation;
     Route currentRoute;
     Circle removableCircle;
+    ArrayList<String> savedRoutes;
+    View fragment;
 
 
     @Override
@@ -66,7 +76,88 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+//        savedRoutes = new ArrayList<>();
+//        savedRoutes.add("one");
+//        savedRoutes.add("two");
+//        savedRoutes.add("three");
+//        savedRoutes.add("four");
+//
+//        fragment = findViewById(R.id.fragment);
+//        fragment.setVisibility(View.GONE);
+//
+//        fragment.setVisibility(View.VISIBLE);
+
+        DownloadMaterial downloadMaterial = new DownloadMaterial();
+        TextView textView = (TextView)findViewById(R.id.textView);
+        try
+        {
+            downloadMaterial.execute("10.0.2.2/").get();
+
+        }catch(Exception e)
+        {
+            Log.e("onCreate Error", e.toString());
+
+        }
+
+
     }
+
+    public class DownloadMaterial extends AsyncTask<String, Void, String>
+    {
+        @Override
+        protected String doInBackground(String... params) {
+            String result = "";
+            URL url;
+            HttpURLConnection urlConnection;
+            try
+            {
+                url = new URL(params[0]);
+                urlConnection = (HttpURLConnection)url.openConnection();
+                urlConnection.connect();
+                InputStream inputStream = urlConnection.getInputStream();
+                InputStreamReader reader = new InputStreamReader(inputStream);
+                int in = reader.read();
+                while(in != -1)
+                {
+                    char c = (char)in;
+                    result += c;
+                    in = reader.read();
+                }
+
+                Log.e("result", result);
+                return result;
+            }
+            catch (Exception e)
+            {
+                Log.e("onCreate Error", e.toString());
+                return "Web search failed";
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+
+
+            try
+            {
+                JSONObject jsonObject = new JSONObject(s);
+                String string = jsonObject.getString("route");
+                Log.e("route", string);
+                JSONArray jsonArray = new JSONArray(string);
+                for(int i = 0; i < jsonArray.length(); ++i)
+                {
+                    JSONObject jsonObject1 = jsonArray.getJSONObject(0);
+                    Log.e("main", jsonObject1.getString("main"));
+                    Log.e("description", jsonObject1.getString("description"));
+                }
+            }
+            catch (Exception e)
+            {
+                Log.e("Json failed", e.toString());
+            }
+        }
+
 
 
     /**

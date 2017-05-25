@@ -7,6 +7,11 @@ import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -55,9 +60,8 @@ public class CreateRouteActivity extends FragmentActivity implements OnMapReadyC
 
     }
 
-    public void centerOnMapLocation()
+    public void putDot()
     {
-        mMap.clear();
         CircleOptions c = new CircleOptions();
         CircleOptions circleOptions = new CircleOptions();
         circleOptions.center(recievedLocation);
@@ -66,6 +70,11 @@ public class CreateRouteActivity extends FragmentActivity implements OnMapReadyC
         circleOptions.strokeColor(Color.rgb(0,139,139));
         circleOptions.strokeWidth(7);
         mMap.addCircle(circleOptions);
+    }
+
+    public void centerOnMapLocation()
+    {
+        putDot();
         CameraPosition position = new CameraPosition.Builder()
                 .target(recievedLocation)      // Sets the center of the map to location user
                 .zoom(17)                   // Sets the zoom
@@ -88,6 +97,7 @@ public class CreateRouteActivity extends FragmentActivity implements OnMapReadyC
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.setMapType(mMap.MAP_TYPE_TERRAIN);
         centerOnMapLocation();
 
         // Add a marker in Sydney and move the camera
@@ -103,6 +113,7 @@ public class CreateRouteActivity extends FragmentActivity implements OnMapReadyC
                     if(markerPoints.size()>1){
                         markerPoints.clear();
                         mMap.clear();
+                        putDot();
                     }
 
                     // Adding new item to the ArrayList
@@ -297,6 +308,34 @@ public class CreateRouteActivity extends FragmentActivity implements OnMapReadyC
             // Drawing polyline in the Google Map for the i-th route
             mMap.addPolyline(lineOptions);
         }
+    }
+
+    public void CheckOnClick(View view)
+    {
+        EditText editText;
+        CheckBox box = (CheckBox) view;
+
+        if(box.getId() == R.id.startCheck)
+        {
+            editText = (EditText) findViewById(R.id.startEditText);
+            box = (CheckBox) findViewById(R.id.startCheck);
+        }
+        else
+        {
+            editText = (EditText) findViewById(R.id.endEditText);
+            box = (CheckBox) findViewById(R.id.endCheck);
+        }
+
+        if(box.isChecked())
+        {
+            editText.setHint("Click On The Map");
+        }
+        else
+        {
+            editText.setHint("Enter A Location");
+        }
+
+
     }
 
 //    @Override
