@@ -45,6 +45,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -91,7 +93,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         TextView textView = (TextView)findViewById(R.id.textView);
         try
         {
-            downloadMaterial.execute("10.0.2.2/").get();
+            downloadMaterial.execute("http://10.10.2.2").get();
 
         }catch(Exception e)
         {
@@ -102,33 +104,39 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    public class DownloadMaterial extends AsyncTask<String, Void, String>
-    {
+    public class DownloadMaterial extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... params) {
             String result = "";
             URL url;
             HttpURLConnection urlConnection;
-            try
-            {
+            try {
                 url = new URL(params[0]);
-                urlConnection = (HttpURLConnection)url.openConnection();
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestProperty("Content-type", "application/x-www-form-urlencoded");
+                urlConnection.setRequestProperty("Accept", "application/json");
+                urlConnection.setRequestMethod("POST");
+                OutputStreamWriter stream = new OutputStreamWriter(urlConnection.getOutputStream());
+                JSONObject object = new JSONObject();
+                object.put("grant_type", "password");
+                object.put("username", "a@a.com");
+                object.put("password", "password!");
+
+                stream.write(object.toString());
+
                 urlConnection.connect();
                 InputStream inputStream = urlConnection.getInputStream();
                 InputStreamReader reader = new InputStreamReader(inputStream);
                 int in = reader.read();
-                while(in != -1)
-                {
-                    char c = (char)in;
+                while (in != -1) {
+                    char c = (char) in;
                     result += c;
                     in = reader.read();
                 }
 
                 Log.e("result", result);
                 return result;
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 Log.e("onCreate Error", e.toString());
                 return "Web search failed";
             }
@@ -139,24 +147,21 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             super.onPostExecute(s);
 
 
-            try
-            {
+            try {
                 JSONObject jsonObject = new JSONObject(s);
                 String string = jsonObject.getString("route");
                 Log.e("route", string);
                 JSONArray jsonArray = new JSONArray(string);
-                for(int i = 0; i < jsonArray.length(); ++i)
-                {
+                for (int i = 0; i < jsonArray.length(); ++i) {
                     JSONObject jsonObject1 = jsonArray.getJSONObject(0);
                     Log.e("main", jsonObject1.getString("main"));
                     Log.e("description", jsonObject1.getString("description"));
                 }
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 Log.e("Json failed", e.toString());
             }
         }
+    }
 
 
 
