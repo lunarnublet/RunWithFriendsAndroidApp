@@ -54,6 +54,7 @@ public class CreateRouteActivity extends FragmentActivity implements OnMapReadyC
     LatLng recievedLocation;
     private static Context context;
     GoogleMapsAPIHelper helper;
+    double distance;
 
 
     @Override
@@ -69,6 +70,7 @@ public class CreateRouteActivity extends FragmentActivity implements OnMapReadyC
 
         startPoint = null;
         endPoint = null;
+        distance = 0.0;
         Intent i = getIntent();
         double lat = i.getDoubleExtra("latitude", 0);
         double lon = i.getDoubleExtra("longitude", 0);
@@ -209,7 +211,7 @@ public class CreateRouteActivity extends FragmentActivity implements OnMapReadyC
     }
 
     @Override
-    public void OnRouteFound(ArrayList<LatLng> points) {
+    public void OnRouteFound(ArrayList<LatLng> points, double distance) {
         PolylineOptions lineOptions = new PolylineOptions();
         lineOptions.addAll(points);
         lineOptions.width(2);
@@ -344,6 +346,7 @@ public class CreateRouteActivity extends FragmentActivity implements OnMapReadyC
                     intent.putExtra("endlatitude", endPoint.latitude);
                     intent.putExtra("endlongitude", endPoint.longitude);
                     intent.putExtra("routename", text.getText().toString());
+                    intent.putExtra("distance", distance);
                     setResult(Activity.RESULT_OK, intent);
                     finish();
                 }

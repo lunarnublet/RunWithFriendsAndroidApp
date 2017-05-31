@@ -9,5 +9,5 @@ import java.util.ArrayList;
  */
 
 public interface RouteReciever {
-    void OnRouteFound(ArrayList<LatLng> points);
+    void OnRouteFound(ArrayList<LatLng> points, double distance);
 }

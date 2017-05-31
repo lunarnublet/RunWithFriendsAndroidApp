@@ -26,11 +26,13 @@ import java.util.List;
 public class GoogleMapsAPIHelper {
 
     ArrayList<LatLng> points;
+//    double distance;
     RouteReciever reciever;
     public GoogleMapsAPIHelper(RouteReciever reciever)
     {
         this.reciever = reciever;
         points = new ArrayList<>();
+//        distance = 0.0;
     }
     public void Execute(LatLng origin, LatLng dest)
     {
@@ -185,7 +187,7 @@ public class GoogleMapsAPIHelper {
     }
 
     private void RouteFound() {
-        reciever.OnRouteFound(points);
+        reciever.OnRouteFound(points, 0.0);
     }
 }
 

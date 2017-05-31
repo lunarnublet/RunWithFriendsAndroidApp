@@ -13,6 +13,7 @@ public class Route {
     private LatLng end;
     private float distance;
     private String name;
+    private int id;
     public Route(LatLng start, LatLng end, float distance, String name)
     {
         this.start = start;
@@ -30,13 +31,14 @@ public class Route {
         return start;
     }
 
-    public float getDistance()
+    public float GetDistance()
     {
         return distance;
     }
 
-    public String getName()
+    public String GetName()
     {
         return name;
     }
+    public int GetId(){ return id; }
 }

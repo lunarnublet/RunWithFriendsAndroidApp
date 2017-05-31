@@ -81,6 +81,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,7 +93,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         helper = new GoogleMapsAPIHelper(this);
 
-        server = new Server("http://10.0.2.2");
+        server = new Server("http://10.0.2.2:19842/");
         savedRoutes = new SavedRoutes(server);
 
         manager = getFragmentManager();
@@ -103,6 +104,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         transaction.add(R.id.fragment_container, fragment, "fragment");
         transaction.commit();
         transaction.hide(fragment);
+
+
+
 
 
     }
@@ -274,7 +278,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         ArrayList<String> routeNames = new ArrayList<>();
         for(int i = 0; i < savedRoutes.Count(); ++i)
         {
-            routeNames.add(savedRoutes.Get(i).getName());
+            routeNames.add(savedRoutes.Get(i).GetName());
         }
         fragment.SetRouteNames(routeNames);
         if(fragment.isHidden())
@@ -293,6 +297,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     double startlon = data.getDoubleExtra("startlongitude", 0.0);
                     double endlat = data.getDoubleExtra("endlatitude", 0.0);
                     double endlon = data.getDoubleExtra("endlongitude", 0.0);
+                    double distance = data.getDoubleExtra("distance", 0.0);
                     String name = data.getStringExtra("routename");
                     Route route = new Route(new LatLng(startlat, startlon), new LatLng(endlat, endlon),0.0f, name);
                     savedRoutes.Add(route);
@@ -304,7 +309,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void OnRouteFound(ArrayList<LatLng> points) {
+    public void OnRouteFound(ArrayList<LatLng> points, double distance) {
         PolylineOptions lineOptions = new PolylineOptions();
         lineOptions.addAll(points);
         lineOptions.width(2);

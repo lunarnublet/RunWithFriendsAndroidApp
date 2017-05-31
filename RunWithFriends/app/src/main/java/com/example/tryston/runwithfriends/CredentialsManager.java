@@ -7,4 +7,5 @@ package com.example.tryston.runwithfriends;
 public interface CredentialsManager {
     boolean validToken(String token);
     String getToken(String username, String password);
+    String register(String username, String password);
 }
