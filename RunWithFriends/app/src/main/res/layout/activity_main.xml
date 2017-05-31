@@ -7,6 +7,18 @@
 
 
     <Button
+        android:id="@+id/listButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@android:drawable/ic_menu_sort_by_size"
+        android:backgroundTint="#323232"
+        android:onClick="OnListButtonClicked"
+        android:visibility="visible"
+        android:layout_below="@+id/centerButton"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <Button
         android:id="@+id/centerButton"
         android:layout_width="50dp"
         android:layout_height="50dp"
@@ -32,15 +44,16 @@
         android:layout_alignParentLeft="true"
         />
 
-    <fragment
-        android:id="@+id/fragment"
-        android:name="com.example.tryston.runwithfriends.SavedRoutesFragment"
+    <RelativeLayout
+        android:id="@+id/fragment_container"
         android:layout_width="150dp"
         android:layout_height="350dp"
         android:layout_above="@+id/LinearLayout02"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        tools:layout="@layout/selected_routes_list_fragment" />
+        android:orientation="vertical" >
+
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/LinearLayout02"
@@ -66,8 +79,9 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="#323232"
-            android:textColor="#ffffff"
-            android:text="Delete"></Button>
+            android:onClick="OnDeleteClick"
+            android:text="Delete"
+            android:textColor="#ffffff"></Button>
 
         <Button
             android:id="@+id/AddButton"

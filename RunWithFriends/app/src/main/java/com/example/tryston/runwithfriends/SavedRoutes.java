@@ -39,5 +39,9 @@ public class SavedRoutes {
             throw new IndexOutOfBoundsException("Out of bounds of the routes arraylist in SavedRoutes");
         }
     }
+    public int Count()
+    {
+        return routes.size();
+    }
 
 }

@@ -20,50 +20,67 @@
         />
 
     <RelativeLayout
+        android:id="@+id/relativeLayout"
         android:layout_width="150dp"
         android:layout_height="300dp"
         android:background="#323232"
-        android:id="@+id/relativeLayout"
+        android:onClick="NullClick"
         android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true">
 
-        <CheckBox
-            android:id="@+id/startCheck"
+        <EditText
+            android:id="@+id/RouteNameEdit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_below="@+id/startEditText"
-            android:checked="true"
-            android:onClick="CheckOnClick"
-            android:text="Use The Map"
-            android:textColor="#ffffff" />
-
-        <CheckBox
-            android:id="@+id/endCheck"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/endEditText"
-            android:checked="true"
-            android:onClick="CheckOnClick"
-            android:text="Use The Map"
-            android:textColor="#ffffff" />
+            android:layout_below="@+id/EndText"
+            android:backgroundTint="#ffffff"
+            android:ems="10"
+            android:hint="Route Name"
+            android:inputType="textPersonName"
+            android:textColor="#ffffff"
+            android:textColorHint="#ffffff" />
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/StartText"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/textView7"
+            android:text="Click On The Map"
+            android:textAlignment="center"
+            android:textColor="#ffffff"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/textView7"
             android:layout_width="match_parent"
             android:layout_height="30dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
             android:text="Start Point"
             android:textAlignment="center"
             android:textColor="#ffffff"
             android:textSize="25sp"
-            android:textStyle="bold"
-            android:layout_alignParentTop="true"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/EndText"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/textView2"
+            android:text="Click On The Map"
+            android:textAlignment="center"
+            android:textColor="#ffffff"
+            android:textSize="15sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/textView2"
@@ -74,36 +91,7 @@
             android:textColor="#ffffff"
             android:textSize="25sp"
             android:textStyle="bold"
-            android:layout_below="@+id/startCheck"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginTop="12dp" />
-
-        <EditText
-            android:id="@+id/endEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="#ffffff"
-            android:ems="10"
-            android:hint="Click On The Map"
-            android:inputType="textPersonName"
-            android:textColor="#ffffff"
-            android:textColorHint="#ffffff"
-            android:layout_below="@+id/textView2"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
-
-        <EditText
-            android:id="@+id/startEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="#ffffff"
-            android:ems="10"
-            android:hint="Click On The Map"
-            android:inputType="textPersonName"
-            android:textColor="#ffffff"
-            android:textColorHint="#ffffff"
-            android:layout_below="@+id/textView"
+            android:layout_below="@+id/StartText"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true" />
 
@@ -114,6 +102,7 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:background="#323232"
+            android:onClick="AddRouteClick"
             android:text="Add"
             android:textColor="#ffffff" />
     </RelativeLayout>

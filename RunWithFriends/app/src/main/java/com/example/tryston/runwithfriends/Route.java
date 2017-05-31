@@ -9,34 +9,34 @@ import java.util.ArrayList;
  */
 
 public class Route {
-    ArrayList<LatLng> points;
-    float distance;
-    public Route(ArrayList<LatLng> points)
+    private LatLng start;
+    private LatLng end;
+    private float distance;
+    private String name;
+    public Route(LatLng start, LatLng end, float distance, String name)
     {
-        this.points = points;
+        this.start = start;
+        this.end = end;
+        this.name = name;
     }
 
     public LatLng GetEnd()
     {
-        if(points.size() > 0)
-        {
-            return points.get(points.size() - 1);
-        }
-        else
-        {
-            return null;
-        }
+        return end;
     }
 
     public LatLng GetStart()
     {
-        if(points.size() > 0)
-        {
-            return points.get(0);
-        }
-        else
-        {
-            return null;
-        }
+        return start;
+    }
+
+    public float getDistance()
+    {
+        return distance;
+    }
+
+    public String getName()
+    {
+        return name;
     }
 }

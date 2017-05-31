@@ -5,5 +5,5 @@ package com.example.tryston.runwithfriends;
  */
 
 public interface RouteSelection {
-    void Selected(Route route);
+    void Selected(int position);
 }

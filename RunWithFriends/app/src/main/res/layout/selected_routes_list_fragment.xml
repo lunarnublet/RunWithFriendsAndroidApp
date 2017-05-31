@@ -8,6 +8,5 @@
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
         android:background="#323232"
-        android:paddingLeft="20dp"
         android:textAlignment="center" />
 </LinearLayout>
