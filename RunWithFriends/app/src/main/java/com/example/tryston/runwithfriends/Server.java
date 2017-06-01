@@ -19,6 +19,8 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Tryston on 5/19/2017.
@@ -28,10 +30,12 @@ public class Server implements RouteServerCommunicator, CredentialsManager {
 
     String connectionString;
     DownloadMaterial download;
+    APIConsumer api;
     public Server(String connectionString)
     {
         this.connectionString = connectionString;
         download = new DownloadMaterial();
+        api = new APIConsumer();
     }
 
     @Override
@@ -42,38 +46,50 @@ public class Server implements RouteServerCommunicator, CredentialsManager {
     }
 
     @Override
-    public String getToken(String username, String password)
+    public APIResponse getToken(String username, String password)
     {
         try
         {
-            URL url = new URL(connectionString + "token/");
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setDoInput(true);
-            urlConnection.setDoOutput(true);
+            String endpointStr = connectionString + "token";
 
-            urlConnection.setRequestMethod("POST");
-            urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            urlConnection.setRequestProperty("Accept", "application/json");
+            HashMap<String, String> body = new HashMap<>();
+            body.put("grant_type", "password");
+            body.put("username", username);
+            body.put("password", password);
 
-            String query = "grant_type=password&username=" + URLEncoder.encode("a@a.com", "UTF-8") + "&password=foobar";
-            Log.e("query", query);
+            APIResponse response = api.execute(endpointStr, "POST", "application/x-www-form-url-encoded",
+                    "application/json", WebHelper.getEncodedPairs(body)).get();
 
-            OutputStreamWriter out = new OutputStreamWriter(urlConnection.getOutputStream());
-            out.write(query);
-            String s = download.execute(urlConnection).get();
-            Log.e("from server got back: ", s);
+            Log.e("API", response.code.toString());
+            Log.e("API", response.getResponse());
 
+            return response;
         }
         catch (Exception e)
         {
-            Log.e("Some exception", e.toString());
+            Log.e("API", e.toString());
+            return null;
         }
-        return "valid";
+//        return "valid";
     }
 
     @Override
-    public String register(String username, String password) {
-        return "valid";
+    public APIResponse register(String username, String password) {
+        try {
+            String endpointStr = connectionString + "api/account/register";
+            JSONObject body = new JSONObject();
+            body.put("email", username);
+            body.put("password", password);
+            body.put("confirmpassword", password);
+
+            APIResponse response = api.execute(endpointStr, "POST", "application/json",
+                    "application/json", body.toString()).get();
+
+            return response;
+        } catch (Exception e) {
+            Log.e("API", e.toString());
+            return null;
+        }
     }
 
     @Override
@@ -88,7 +104,97 @@ public class Server implements RouteServerCommunicator, CredentialsManager {
         return true;
     }
 
+    @Override
+    public APIResponse getRoutes(String authToken) {
+        try {
+            String endpointStr = connectionString + "api/account/register";
+            APIResponse response = api.execute(endpointStr, "GET", null,
+                    null, null, authToken).get();
 
+            return response;
+        } catch (Exception e) {
+            Log.e("API", e.toString());
+            return null;
+        }
+    }
+
+    /*
+        0 - URL
+        1 - Request Type
+        2 - Content-Type
+        3 - Accept
+        4 - Body
+        5 - Authorization
+
+     */
+    private class APIConsumer extends AsyncTask<String, Void, APIResponse>
+    {
+        @Override
+        protected APIResponse doInBackground(String... params) {
+            HttpURLConnection connection = null;
+            StringBuilder result = new StringBuilder(512);
+            APIResponse response = new APIResponse();
+
+            try {
+                URL url = new URL(params[0]);
+                connection = (HttpURLConnection) url.openConnection();
+
+                connection.setRequestMethod(params[1]);
+
+                if (params.length > 3) {
+                    if (params[2] != null) {
+                        connection.setRequestProperty("Content-Type", params[2]);
+                    }
+                    if (params[3] != null) {
+                        connection.setRequestProperty("Accept", params[3]);
+                    }
+
+                    if (params.length > 5 && params[5] != null) {
+                        connection.setRequestProperty("Authorization", params[5]);
+                    }
+
+                    String postBody = params[4];
+                    OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
+                    out.write(postBody);
+                    out.flush();
+                }
+
+                connection.connect();
+                InputStream inputStream = connection.getInputStream();
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                int in;
+                while ((in = inputStreamReader.read()) != -1) {
+                    char c = (char) in;
+                    result.append(c);
+                }
+                response.response = result.toString();
+                response.code = APIResponse.Code.fromInt(connection.getResponseCode());
+                response.message = APIResponse.ALRIGHT;
+
+            } catch (Exception e) {
+                Log.e("SERVER", e.toString());
+                response.message = APIResponse.FAIL;
+                connection.getErrorStream();
+                try {
+                    response.code = APIResponse.Code.fromInt(connection.getResponseCode());
+                } catch (IOException ioe) {
+                    response.code = APIResponse.Code.UNKNOWN;
+                }
+                StringBuilder errResponse = new StringBuilder();
+                try {
+                    int in;
+                    while ((in = connection.getErrorStream().read()) != -1) {
+                        errResponse.append((char)in);
+                    }
+                    response.response = errResponse.toString();
+                } catch (IOException ioe) {
+                    response.response = "";
+                }
+            }
+
+            return response;
+        }
+    }
 
 
     public class DownloadMaterial extends AsyncTask<HttpURLConnection, Void, String>

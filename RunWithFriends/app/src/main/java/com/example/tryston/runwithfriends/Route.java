@@ -13,33 +13,35 @@ public class Route {
     private LatLng end;
     private double distance;
     private String name;
+    boolean isLoopRoute;
     private int id;
-    public Route(LatLng start, LatLng end, float distance, String name)
+    public Route(LatLng start, LatLng end, double distance, String name, boolean isLoopRoute)
     {
         this.start = start;
         this.end = end;
         this.name = name;
         this.distance = distance;
+        this.isLoopRoute = isLoopRoute;
     }
 
-    public LatLng GetEnd()
+    public LatLng getEnd()
     {
         return end;
     }
 
-    public LatLng GetStart()
+    public LatLng getStart()
     {
         return start;
     }
 
-    public double GetDistance()
+    public double getDistance()
     {
         return distance;
     }
 
-    public String GetName()
+    public String getName()
     {
         return name;
     }
-    public int GetId(){ return id; }
+    public int getId(){ return id; }
 }
