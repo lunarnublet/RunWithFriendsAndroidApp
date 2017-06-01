@@ -7,33 +7,23 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
-import android.view.Menu;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.Cap;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -41,24 +31,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback, RouteSelection, RouteReciever {
 
@@ -225,18 +198,18 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     public void Selected(int i)
     {
         currentRoute = savedRoutes.Get(i);
-        helper.Execute(currentRoute.GetStart(), currentRoute.GetEnd());
+        helper.Execute(currentRoute.getStart(), currentRoute.getEnd());
         OnListButtonClicked(null);
         mMap.clear();
         createDot();
         MarkerOptions marker = new MarkerOptions();
         marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-        marker.position(currentRoute.GetStart());
+        marker.position(currentRoute.getStart());
         mMap.addMarker(marker);
         marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-        marker.position(currentRoute.GetEnd());
+        marker.position(currentRoute.getEnd());
         mMap.addMarker(marker);
-        moveCameraToLocation(currentRoute.GetStart());
+        moveCameraToLocation(currentRoute.getStart());
 
 
 
@@ -278,7 +251,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         ArrayList<String> routeNames = new ArrayList<>();
         for(int i = 0; i < savedRoutes.Count(); ++i)
         {
-            routeNames.add(savedRoutes.Get(i).GetName());
+            routeNames.add(savedRoutes.Get(i).getName());
         }
         fragment.SetRouteNames(routeNames);
         if(fragment.isHidden())

@@ -19,26 +19,27 @@ public class Route {
         this.start = start;
         this.end = end;
         this.name = name;
+        this.distance = distance;
     }
 
-    public LatLng GetEnd()
+    public LatLng getEnd()
     {
         return end;
     }
 
-    public LatLng GetStart()
+    public LatLng getStart()
     {
         return start;
     }
 
-    public float GetDistance()
+    public float getDistance()
     {
         return distance;
     }
 
-    public String GetName()
+    public String getName()
     {
         return name;
     }
-    public int GetId(){ return id; }
+    public int getId(){ return id; }
 }
