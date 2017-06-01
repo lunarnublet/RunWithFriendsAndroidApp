@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class Route {
     private LatLng start;
     private LatLng end;
-    private float distance;
+    private double distance;
     private String name;
     private int id;
     public Route(LatLng start, LatLng end, float distance, String name)
@@ -19,6 +19,7 @@ public class Route {
         this.start = start;
         this.end = end;
         this.name = name;
+        this.distance = distance;
     }
 
     public LatLng GetEnd()
@@ -31,7 +32,7 @@ public class Route {
         return start;
     }
 
-    public float GetDistance()
+    public double GetDistance()
     {
         return distance;
     }

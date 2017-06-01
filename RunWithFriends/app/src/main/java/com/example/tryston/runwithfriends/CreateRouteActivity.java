@@ -212,6 +212,7 @@ public class CreateRouteActivity extends FragmentActivity implements OnMapReadyC
 
     @Override
     public void OnRouteFound(ArrayList<LatLng> points, double distance) {
+        this.distance = distance;
         PolylineOptions lineOptions = new PolylineOptions();
         lineOptions.addAll(points);
         lineOptions.width(2);

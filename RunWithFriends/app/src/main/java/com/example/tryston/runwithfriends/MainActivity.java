@@ -299,7 +299,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     double endlon = data.getDoubleExtra("endlongitude", 0.0);
                     double distance = data.getDoubleExtra("distance", 0.0);
                     String name = data.getStringExtra("routename");
-                    Route route = new Route(new LatLng(startlat, startlon), new LatLng(endlat, endlon),0.0f, name);
+                    Route route = new Route(new LatLng(startlat, startlon), new LatLng(endlat, endlon),distance, name);
                     savedRoutes.Add(route);
                     UpdateFragment();
                 }
