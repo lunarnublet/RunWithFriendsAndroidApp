@@ -1,5 +1,9 @@
 package com.example.tryston.runwithfriends;
 
+import android.net.ParseException;
+
+import com.google.android.gms.maps.model.LatLng;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -22,6 +26,57 @@ public class WebHelper {
         } catch (JSONException e) {
             return null;
         }
+    }
+
+    public static Route parseJSONRoute(JSONObject obj) {
+        try {
+            int id = obj.getInt("id");
+            String name = obj.getString("name");
+            String origin = obj.getString("origin");
+            String destination = obj.getString("destination");
+            double distance = obj.getDouble("distance");
+
+            LatLng originLatLng = latLngFromString(origin);
+            LatLng destLatLng = latLngFromString(destination);
+
+            if (originLatLng == null || destLatLng == null)
+            {
+                return null;
+            }
+
+            return new Route(id, originLatLng, destLatLng, distance, name);
+
+        } catch (JSONException e) {
+            return null;
+        }
+    }
+
+    public static LatLng latLngFromString(String latLng) {
+        String[] arr = latLng.split(",");
+
+        if (arr.length == 2){
+            try {
+                double lat = Double.parseDouble(arr[0]);
+                double lng = Double.parseDouble(arr[1]);
+
+                return new LatLng(lat, lng);
+
+            } catch (ParseException e) {
+                return null;
+            }
+        }
+
+        return null;
+    }
+
+    public static String latLngToString(LatLng latLng) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(latLng.latitude);
+        sb.append(',');
+        sb.append(latLng.longitude);
+
+        return sb.toString();
     }
 
     public static String getEncodedPairs(Map<String, String> pairs) {

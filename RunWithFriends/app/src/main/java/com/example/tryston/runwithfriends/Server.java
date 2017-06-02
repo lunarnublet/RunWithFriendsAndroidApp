@@ -8,6 +8,7 @@ import android.util.Log;
 import android.widget.ImageView;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -30,12 +31,10 @@ public class Server implements RouteServerCommunicator, CredentialsManager {
 
     String connectionString;
     DownloadMaterial download;
-    APIConsumer api;
     public Server(String connectionString)
     {
         this.connectionString = connectionString;
         download = new DownloadMaterial();
-        api = new APIConsumer();
     }
 
     @Override
@@ -57,7 +56,7 @@ public class Server implements RouteServerCommunicator, CredentialsManager {
             body.put("username", username);
             body.put("password", password);
 
-            APIResponse response = api.execute(endpointStr, "POST", "application/x-www-form-url-encoded",
+            APIResponse response = new APIConsumer().execute(endpointStr, "POST", "application/x-www-form-url-encoded",
                     "application/json", WebHelper.getEncodedPairs(body)).get();
 
             Log.e("API", response.code.toString());
@@ -82,7 +81,7 @@ public class Server implements RouteServerCommunicator, CredentialsManager {
             body.put("password", password);
             body.put("confirmpassword", password);
 
-            APIResponse response = api.execute(endpointStr, "POST", "application/json",
+            APIResponse response = new APIConsumer().execute(endpointStr, "POST", "application/json",
                     "application/json", body.toString()).get();
 
             return response;
@@ -93,23 +92,51 @@ public class Server implements RouteServerCommunicator, CredentialsManager {
     }
 
     @Override
-    public boolean add(Route route)
+    public boolean add(Route route, String authToken)
     {
+        String endpointStr = connectionString + "api/routes/";
+        JSONObject body = new JSONObject();
+        try {
+            body.put("name", route.getName());
+            body.put("origin", WebHelper.latLngToString(route.getStart()));
+            body.put("destination", WebHelper.latLngToString(route.getEnd()));
+            body.put("distance", route.getDistance());
+
+            APIResponse response = new APIConsumer().execute(endpointStr, "POST", "application/json",
+                    "application/json", body.toString(), "Bearer " + authToken).get();
+
+        } catch (Exception e) {
+            return false;
+        }
         return true;
     }
 
     @Override
-    public boolean remove(Route route)
+    public boolean remove(Route route, String authToken)
     {
+        if (route.getId() <= 0)
+        {
+            return false;
+        }
+
+        String endpointStr = connectionString + "api/routes/" + route.getId();
+        try {
+            APIResponse response = new APIConsumer().execute(endpointStr, "DELETE", null,
+                    null, null, "Bearer " + authToken).get();
+        } catch (Exception e) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public APIResponse getRoutes(String authToken) {
         try {
-            String endpointStr = connectionString + "api/account/register";
-            APIResponse response = api.execute(endpointStr, "GET", null,
-                    null, null, authToken).get();
+            String endpointStr = connectionString + "api/routes";
+            APIResponse response = new APIConsumer().execute(endpointStr, "GET", null,
+                    "application/json", null, "Bearer " + authToken).get();
+
+            Log.e("SERVER", "getRoutes.CODE = " + response.code.toString());
 
             return response;
         } catch (Exception e) {
@@ -153,10 +180,13 @@ public class Server implements RouteServerCommunicator, CredentialsManager {
                         connection.setRequestProperty("Authorization", params[5]);
                     }
 
-                    String postBody = params[4];
-                    OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
-                    out.write(postBody);
-                    out.flush();
+                    if (params[4] != null) {
+                        String postBody = params[4];
+
+                        OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
+                        out.write(postBody);
+                        out.flush();
+                    }
                 }
 
                 connection.connect();

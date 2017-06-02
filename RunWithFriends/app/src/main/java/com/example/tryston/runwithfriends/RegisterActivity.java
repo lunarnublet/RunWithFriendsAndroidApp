@@ -43,8 +43,8 @@ public class RegisterActivity extends AppCompatActivity {
 
                             try {
                                 JSONObject obj = new JSONObject(tokenResponse.response);
-                                StorageHelper.putToken(this, obj.getString("access_token"));
 
+                                StorageHelper.putToken(this, obj.getString("access_token"));
                                 Intent intent = new Intent(this, MainActivity.class);
                                 startActivity(intent);
 

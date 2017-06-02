@@ -11,10 +11,10 @@ import java.util.ArrayList;
 public class Route {
     private LatLng start;
     private LatLng end;
-    private float distance;
+    private double distance;
     private String name;
     private int id;
-    public Route(LatLng start, LatLng end, float distance, String name)
+    public Route(LatLng start, LatLng end, double distance, String name)
     {
         this.start = start;
         this.end = end;
@@ -32,7 +32,7 @@ public class Route {
         return start;
     }
 
-    public float getDistance()
+    public double getDistance()
     {
         return distance;
     }
@@ -42,4 +42,9 @@ public class Route {
         return name;
     }
     public int getId(){ return id; }
+
+    public Route(int id, LatLng start, LatLng end, double distance, String name) {
+        this(start, end, distance, name);
+        this.id = id;
+    }
 }

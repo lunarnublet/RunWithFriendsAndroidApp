@@ -5,7 +5,7 @@ package com.example.tryston.runwithfriends;
  */
 
 public interface RouteServerCommunicator {
-    boolean add(Route route);
-    boolean remove(Route route);
+    boolean add(Route route, String authToken);
+    boolean remove(Route route, String authToken);
     APIResponse getRoutes(String authToken);
 }
