@@ -83,14 +83,6 @@
             android:text="Delete"
             android:textColor="#ffffff"></Button>
 
-        <Button
-            android:id="@+id/AddButton"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="#323232"
-            android:textColor="#ffffff"
-            android:text="Add"></Button>
     </LinearLayout>
 
 </RelativeLayout>
