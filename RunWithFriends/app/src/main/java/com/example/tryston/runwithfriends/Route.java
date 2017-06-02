@@ -13,7 +13,7 @@ public class Route {
     private LatLng end;
     private double distance;
     private String name;
-    boolean isLoopRoute;
+    private boolean isLoopRoute;
     private int id;
     public Route(LatLng start, LatLng end, double distance, String name, boolean isLoopRoute)
     {
@@ -39,9 +39,16 @@ public class Route {
         return distance;
     }
 
+    public boolean getIsLoopRoute() { return isLoopRoute; }
+
     public String getName()
     {
         return name;
     }
     public int getId(){ return id; }
+
+    public Route(int id, LatLng start, LatLng end, double distance, String name, boolean isLoopRoute) {
+        this(start, end, distance, name, isLoopRoute);
+        this.id = id;
+    }
 }

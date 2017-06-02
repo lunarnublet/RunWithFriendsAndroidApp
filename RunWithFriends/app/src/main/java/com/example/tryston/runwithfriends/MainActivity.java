@@ -68,20 +68,17 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         server = new Server("http://10.0.2.2:19842/");
         savedRoutes = new SavedRoutes(server);
+        savedRoutes.init(this);
 
         manager = getFragmentManager();
         transaction = manager.beginTransaction();
         fragment = new SavedRoutesFragment();
+
         fragment.SetRouteSelection(this);
 
         transaction.add(R.id.fragment_container, fragment, "fragment");
         transaction.commit();
         transaction.hide(fragment);
-
-
-
-
-
     }
 
 
@@ -97,6 +94,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        UpdateFragment();
         mMap = googleMap;
 
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
@@ -252,7 +250,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         for(int i = 0; i < savedRoutes.Count(); ++i)
         {
             String display = savedRoutes.Get(i).getName() + ": " + savedRoutes.Get(i).getDistance() + "km";
-            if(savedRoutes.Get(i).isLoopRoute)
+            if(savedRoutes.Get(i).getIsLoopRoute())
             {
                 display += " (loop)";
             }

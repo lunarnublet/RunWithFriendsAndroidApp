@@ -1,5 +1,12 @@
 package com.example.tryston.runwithfriends;
 
+import android.content.Context;
+import android.os.storage.StorageManager;
+import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 /**
@@ -9,21 +16,55 @@ import java.util.ArrayList;
 public class SavedRoutes {
     private ArrayList<Route> routes;
     private RouteServerCommunicator communicator;
+    private String authToken;
+
     SavedRoutes(RouteServerCommunicator communicator)
     {
         this.communicator = communicator;
         this.routes = new ArrayList<>();
     }
+
+    void init(Context c) {
+        authToken = StorageHelper.getToken(c);
+        APIResponse response = communicator.getRoutes(authToken);
+
+        switch(response.code) {
+            case OK:
+                try {
+                    JSONObject obj = new JSONObject(response.response);
+                    JSONArray routes = obj.getJSONArray("routes");
+
+                    for(int i = 0; i < routes.length(); ++i)
+                    {
+                        JSONObject routeJSON = routes.getJSONObject(i);
+
+                        Route route = WebHelper.parseJSONRoute(routeJSON);
+
+                        if (route != null) {
+                            this.routes.add(route);
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.e("ROUTES", "JSON failure");
+                }
+                break;
+            default:
+                Log.e("ROUTES", "Failed to get routes");
+                break;
+        }
+    }
+
+
     public void Add(Route route)
     {
-        if(communicator.add(route))
+        if(communicator.add(route, authToken))
         {
             routes.add(route);
         }
     }
     public void Remove(Route route)
     {
-        if (communicator.remove(route))
+        if (communicator.remove(route, authToken))
         {
             routes.remove(route);
         }
