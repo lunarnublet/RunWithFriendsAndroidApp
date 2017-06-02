@@ -106,6 +106,15 @@ public class Server implements RouteServerCommunicator, CredentialsManager {
             APIResponse response = new APIConsumer().execute(endpointStr, "POST", "application/json",
                     "application/json", body.toString(), "Bearer " + authToken).get();
 
+            try {
+                JSONObject obj = new JSONObject(response.response);
+
+                int id = obj.getInt("id");
+                route.setId(id);
+            } catch (Exception e) {
+                Log.e("SERVER", "add-> Bad JSON");
+            }
+
         } catch (Exception e) {
             return false;
         }
