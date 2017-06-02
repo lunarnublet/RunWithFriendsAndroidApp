@@ -60,16 +60,16 @@
             android:id="@+id/PasswordEdit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="#ffffff"
-            android:ems="10"
-            android:hint="Enter Desired Password..."
-            android:inputType="textPersonName"
-            android:textColor="#ffffff"
-            android:textColorHint="#ffffff"
-            android:layout_below="@+id/UsernameEdit"
             android:layout_alignLeft="@+id/UsernameEdit"
             android:layout_alignStart="@+id/UsernameEdit"
-            android:layout_marginTop="11dp" />
+            android:layout_below="@+id/UsernameEdit"
+            android:layout_marginTop="11dp"
+            android:backgroundTint="#ffffff"
+            android:ems="10"
+            android:hint="Enter Password..."
+            android:inputType="textPassword"
+            android:textColor="#ffffff"
+            android:textColorHint="#ffffff" />
 
         <EditText
             android:id="@+id/ConfirmPasswordEdit"
@@ -82,7 +82,7 @@
             android:backgroundTint="#ffffff"
             android:ems="10"
             android:hint="Confirm Password..."
-            android:inputType="textPersonName"
+            android:inputType="textPassword"
             android:textColor="#ffffff"
             android:textColorHint="#ffffff" />
 
