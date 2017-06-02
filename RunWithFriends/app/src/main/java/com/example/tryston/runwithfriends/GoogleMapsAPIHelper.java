@@ -26,13 +26,13 @@ import java.util.List;
 public class GoogleMapsAPIHelper {
 
     ArrayList<LatLng> points;
-//    double distance;
+    double distance;
     RouteReciever reciever;
     public GoogleMapsAPIHelper(RouteReciever reciever)
     {
         this.reciever = reciever;
         points = new ArrayList<>();
-//        distance = 0.0;
+        distance = 0.0;
     }
     public void Execute(LatLng origin, LatLng dest)
     {
@@ -55,8 +55,10 @@ public class GoogleMapsAPIHelper {
         // Sensor enabled
         String sensor = "sensor=false";
 
+        String units = "units=metric";
+
         // Building the parameters to the web service
-        String parameters = str_origin+"&"+str_dest+"&"+sensor + "&mode=walking";
+        String parameters = str_origin+"&"+str_dest+"&"+sensor + "&mode=walking" + "&" + units;
 
         // Output format
         String output = "json";
@@ -153,6 +155,7 @@ public class GoogleMapsAPIHelper {
 
                 // Starts parsing data
                 routes = parser.parse(jObject);
+                distance = parser.getDistance();
             }catch(Exception e){
                 e.printStackTrace();
             }
@@ -182,12 +185,13 @@ public class GoogleMapsAPIHelper {
                 }
 
             }
+
             RouteFound();
         }
     }
 
     private void RouteFound() {
-        reciever.OnRouteFound(points, 0.0);
+        reciever.OnRouteFound(points, distance);
     }
 }
 

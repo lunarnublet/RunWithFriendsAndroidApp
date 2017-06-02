@@ -249,7 +249,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         ArrayList<String> routeNames = new ArrayList<>();
         for(int i = 0; i < savedRoutes.Count(); ++i)
         {
-            routeNames.add(savedRoutes.Get(i).getName());
+            String display = savedRoutes.Get(i).getName() + ": " + savedRoutes.Get(i).getDistance() + "km";
+            if(savedRoutes.Get(i).isLoopRoute)
+            {
+                display += " (loop)";
+            }
+            routeNames.add(display);
         }
         fragment.SetRouteNames(routeNames);
         if(fragment.isHidden())
@@ -270,7 +275,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     double endlon = data.getDoubleExtra("endlongitude", 0.0);
                     double distance = data.getDoubleExtra("distance", 0.0);
                     String name = data.getStringExtra("routename");
-                    Route route = new Route(new LatLng(startlat, startlon), new LatLng(endlat, endlon),0.0f, name);
+                    boolean loop = data.getBooleanExtra("looproute", false);
+                    Route route = new Route(new LatLng(startlat, startlon), new LatLng(endlat, endlon),distance, name, loop);
                     savedRoutes.Add(route);
                     UpdateFragment();
                 }

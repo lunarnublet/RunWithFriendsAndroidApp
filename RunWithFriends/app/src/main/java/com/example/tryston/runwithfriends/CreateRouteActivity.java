@@ -52,9 +52,11 @@ public class CreateRouteActivity extends FragmentActivity implements OnMapReadyC
     LatLng startPoint;
     LatLng endPoint;
     LatLng recievedLocation;
+    double distance;
+    boolean isLoopRoute;
     private static Context context;
     GoogleMapsAPIHelper helper;
-    double distance;
+
 
 
     @Override
@@ -71,6 +73,7 @@ public class CreateRouteActivity extends FragmentActivity implements OnMapReadyC
         startPoint = null;
         endPoint = null;
         distance = 0.0;
+        isLoopRoute = false;
         Intent i = getIntent();
         double lat = i.getDoubleExtra("latitude", 0);
         double lon = i.getDoubleExtra("longitude", 0);
@@ -212,12 +215,24 @@ public class CreateRouteActivity extends FragmentActivity implements OnMapReadyC
 
     @Override
     public void OnRouteFound(ArrayList<LatLng> points, double distance) {
+        this.distance = distance;
+        if(isLoopRoute)
+        {
+            this.distance *= 2;
+        }
+        UpdateDistanceText();
         PolylineOptions lineOptions = new PolylineOptions();
         lineOptions.addAll(points);
         lineOptions.width(2);
         lineOptions.color(Color.RED);
         lineOptions.width(15);
         mMap.addPolyline(lineOptions);
+    }
+
+    private void UpdateDistanceText()
+    {
+        TextView text = (TextView)findViewById(R.id.textView);
+        text.setText("Distance: " + distance + "km");
     }
 
 
@@ -347,6 +362,7 @@ public class CreateRouteActivity extends FragmentActivity implements OnMapReadyC
                     intent.putExtra("endlongitude", endPoint.longitude);
                     intent.putExtra("routename", text.getText().toString());
                     intent.putExtra("distance", distance);
+                    intent.putExtra("looproute", isLoopRoute);
                     setResult(Activity.RESULT_OK, intent);
                     finish();
                 }
@@ -365,6 +381,21 @@ public class CreateRouteActivity extends FragmentActivity implements OnMapReadyC
             Toast.makeText(getApplicationContext(),"There is no start point for the route",Toast.LENGTH_LONG).show();
         }
 
+    }
+
+    public void OnLoopCheck(View view)
+    {
+        if(((CheckBox)findViewById(R.id.LoopCheck)).isChecked())
+        {
+            isLoopRoute = true;
+            distance *= 2;
+        }
+        else
+        {
+            isLoopRoute = false;
+            distance /= 2;
+        }
+        UpdateDistanceText();
     }
 
 //    @Override

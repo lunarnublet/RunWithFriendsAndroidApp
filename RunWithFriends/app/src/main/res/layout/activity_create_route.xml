@@ -29,6 +29,20 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true">
 
+        <CheckBox
+            android:id="@+id/LoopCheck"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/textView"
+            android:onClick="OnLoopCheck"
+            android:text="Loop Route"
+            android:textColor="#ffffff"
+            app:buttonTint="#ffffff" />
+
         <EditText
             android:id="@+id/RouteNameEdit"
             android:layout_width="match_parent"
@@ -51,6 +65,19 @@
             android:layout_alignParentStart="true"
             android:layout_below="@+id/textView7"
             android:text="Click On The Map"
+            android:textAlignment="center"
+            android:textColor="#ffffff"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/RouteNameEdit"
+            android:text="Distance: 0.0km"
             android:textAlignment="center"
             android:textColor="#ffffff"
             android:textSize="15sp"
@@ -98,7 +125,7 @@
         <Button
             android:id="@+id/AddButton"
             android:layout_width="match_parent"
-            android:layout_height="79dp"
+            android:layout_height="60dp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:background="#323232"
