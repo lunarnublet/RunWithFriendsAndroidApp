@@ -250,7 +250,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         for(int i = 0; i < savedRoutes.Count(); ++i)
         {
             String display = savedRoutes.Get(i).getName() + ": " + savedRoutes.Get(i).getDistance() + "km";
-            if(savedRoutes.Get(i).isLoopRoute)
+            if(savedRoutes.Get(i).getIsLoopRoute())
             {
                 display += " (loop)";
             }

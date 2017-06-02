@@ -101,6 +101,7 @@ public class Server implements RouteServerCommunicator, CredentialsManager {
             body.put("origin", WebHelper.latLngToString(route.getStart()));
             body.put("destination", WebHelper.latLngToString(route.getEnd()));
             body.put("distance", route.getDistance());
+            body.put("is_loop_route", route.getIsLoopRoute());
 
             APIResponse response = new APIConsumer().execute(endpointStr, "POST", "application/json",
                     "application/json", body.toString(), "Bearer " + authToken).get();
@@ -123,6 +124,7 @@ public class Server implements RouteServerCommunicator, CredentialsManager {
         try {
             APIResponse response = new APIConsumer().execute(endpointStr, "DELETE", null,
                     null, null, "Bearer " + authToken).get();
+            int bar = 0;
         } catch (Exception e) {
             return false;
         }
@@ -152,7 +154,6 @@ public class Server implements RouteServerCommunicator, CredentialsManager {
         3 - Accept
         4 - Body
         5 - Authorization
-
      */
     private class APIConsumer extends AsyncTask<String, Void, APIResponse>
     {

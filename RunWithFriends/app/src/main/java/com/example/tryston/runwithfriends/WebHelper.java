@@ -35,6 +35,7 @@ public class WebHelper {
             String origin = obj.getString("origin");
             String destination = obj.getString("destination");
             double distance = obj.getDouble("distance");
+            boolean isLoopRoute = obj.getBoolean("is_loop_route");
 
             LatLng originLatLng = latLngFromString(origin);
             LatLng destLatLng = latLngFromString(destination);
@@ -44,7 +45,7 @@ public class WebHelper {
                 return null;
             }
 
-            return new Route(id, originLatLng, destLatLng, distance, name);
+            return new Route(id, originLatLng, destLatLng, distance, name, isLoopRoute);
 
         } catch (JSONException e) {
             return null;
