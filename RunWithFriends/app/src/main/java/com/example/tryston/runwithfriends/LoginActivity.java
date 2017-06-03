@@ -39,7 +39,7 @@ public class LoginActivity extends AppCompatActivity {
         LoginActivity.manager = new Server("http://10.0.2.2:19842/");
         LoginActivity.fileName = "tokenfile.csv";
 
-//        StorageHelper.putToken(this, "");
+        StorageHelper.putToken(this, "");
         token = StorageHelper.getToken(this);
 //        token = readCSV();
         if (!token.equals("") && manager.validToken(token)) {

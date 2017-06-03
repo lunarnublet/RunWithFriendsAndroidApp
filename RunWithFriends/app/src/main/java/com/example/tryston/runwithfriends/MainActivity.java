@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -315,12 +316,15 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
     public void OnDeleteClick(View view)
     {
-
-        savedRoutes.Remove(currentRoute);
-        currentRoute = null;
-        UpdateFragment();
-        mMap.clear();
-        createDot();
+        if (currentRoute != null) {
+            savedRoutes.Remove(currentRoute);
+            currentRoute = null;
+            UpdateFragment();
+            mMap.clear();
+            createDot();
+        } else {
+            Toast.makeText(this, "Select a route", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
