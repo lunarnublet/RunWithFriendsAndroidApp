@@ -28,6 +28,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -216,6 +217,19 @@ public class CreateRouteActivity extends FragmentActivity implements OnMapReadyC
     @Override
     public void OnRouteFound(ArrayList<LatLng> points, double distance) {
         this.distance = distance;
+        this.startPoint = points.get(0);
+        this.endPoint = points.get(points.size() - 1);
+        MarkerOptions options1 = new MarkerOptions();
+        options1.position(startPoint);
+        options1.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+        MarkerOptions options2 = new MarkerOptions();
+        options2.position(endPoint);
+        options2.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+        mMap.clear();
+        putDot();
+        mMap.addMarker(options1);
+        mMap.addMarker(options2);
+
         if(isLoopRoute)
         {
             this.distance *= 2;
