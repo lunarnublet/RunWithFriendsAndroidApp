@@ -1,7 +1,8 @@
-package com.example.tryston.runwithfriends;
+package web;
 
 import android.net.ParseException;
 
+import com.example.tryston.runwithfriends.model.Route;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONException;
@@ -9,7 +10,6 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -18,15 +18,6 @@ import java.util.Map;
 
 public class WebHelper {
     private WebHelper() {}
-
-    public static String parseToken(String jsonString) {
-        try {
-            JSONObject obj = new JSONObject(jsonString);
-            return obj.getString("access_token");
-        } catch (JSONException e) {
-            return null;
-        }
-    }
 
     public static Route parseJSONRoute(JSONObject obj) {
         try {

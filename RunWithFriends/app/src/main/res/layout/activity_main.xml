@@ -12,7 +12,7 @@
         android:layout_height="50dp"
         android:background="@android:drawable/ic_menu_sort_by_size"
         android:backgroundTint="#323232"
-        android:onClick="OnListButtonClicked"
+        android:onClick="onListButtonClicked"
         android:visibility="visible"
         android:layout_below="@+id/centerButton"
         android:layout_alignParentRight="true"
@@ -27,7 +27,7 @@
         android:layout_alignParentTop="true"
         android:background="@android:drawable/ic_menu_compass"
         android:backgroundTint="#323232"
-        android:onClick="OnCenterButtonClicked" />
+        android:onClick="onCenterButtonClicked" />
 
     <fragment
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -48,7 +48,7 @@
         android:id="@+id/fragment_container"
         android:layout_width="150dp"
         android:layout_height="350dp"
-        android:layout_above="@+id/LinearLayout02"
+        android:layout_above="@+id/route_controls"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:orientation="vertical" >
@@ -56,7 +56,7 @@
     </RelativeLayout>
 
     <LinearLayout
-        android:id="@+id/LinearLayout02"
+        android:id="@+id/route_controls"
         android:layout_width="fill_parent"
         android:layout_height="75dp"
         android:layout_alignParentBottom="true"
@@ -69,7 +69,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="#323232"
-            android:onClick="OnNewRoute"
+            android:onClick="onNewRoute"
             android:text="New"
             android:textColor="#ffffff"></Button>
 
@@ -79,7 +79,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="#323232"
-            android:onClick="OnDeleteClick"
+            android:onClick="onDeleteClick"
             android:text="Delete"
             android:textColor="#ffffff"></Button>
 

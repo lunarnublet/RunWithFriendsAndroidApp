@@ -20,10 +20,16 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.tryston.runwithfriends.maps.DirectionsResult;
+import com.example.tryston.runwithfriends.maps.GoogleMapsAPIHelper;
+import com.example.tryston.runwithfriends.maps.LatLngEx;
+import com.example.tryston.runwithfriends.model.Route;
+import com.example.tryston.runwithfriends.repository.SavedRoutes;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
@@ -34,28 +40,32 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class MainActivity extends FragmentActivity implements OnMapReadyCallback, RouteSelection, RouteReciever {
+import com.example.tryston.runwithfriends.repository.Server;
+
+public class MainActivity extends FragmentActivity implements OnMapReadyCallback, RouteSelection, RouteReceiver {
 
     private GoogleMap mMap;
 
-    LocationManager locationManager;
-    LocationListener locationListener;
+    private LocationManager locationManager;
+    private LocationListener locationListener;
 
-    LatLng currentLocation;
-    Route currentRoute;
-    Circle removableCircle;
-    Server server;
-    SavedRoutes savedRoutes;
-    SavedRoutesFragment fragment;
+    private LatLng currentLocation;
+    private Route currentRoute;
+    private Circle removableCircle;
+    private SavedRoutes savedRoutes;
+    private SavedRoutesFragment fragment;
 
-    FragmentManager manager;
-    FragmentTransaction transaction;
+    private FragmentManager manager;
+    private FragmentTransaction transaction;
 
-    GoogleMapsAPIHelper helper;
+    private GoogleMapsAPIHelper gmapsApi;
 
     private static final int LOCATION_SERVICE_REQUEST = 92;
 
+    private boolean isNavigatorDrawn = false;
+    private List<LatLng> currentRoutePolylineCache;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,10 +81,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         }
         mapFragment.getMapAsync(this);
 
-        helper = new GoogleMapsAPIHelper(this);
+        gmapsApi = new GoogleMapsAPIHelper(/*this*/);
 
-        server = new Server("http://10.0.2.2:19842/");
-        savedRoutes = new SavedRoutes(server);
+        savedRoutes = new SavedRoutes(new Server("http://10.0.2.2:19842/"));
         savedRoutes.init(this);
 
         transaction = manager.beginTransaction();
@@ -87,27 +96,27 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         transaction.hide(fragment);
     }
 
-
-
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        UpdateFragment();
+        updateRoutesFragment();
         mMap = googleMap;
 
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                //new method for location
+                if (isNavigatorDrawn && !shouldDrawNavigatorLine(currentLocation, currentRoute.getStart())) {
+                    mMap.clear();
+
+                    addMarker(currentRoute.getStart(), BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                    addMarker(currentRoute.getEnd(), BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+
+                    if (currentRoutePolylineCache != null) {
+                        drawPolyline(currentRoutePolylineCache, 15f, Color.RED);
+                    }
+                    isNavigatorDrawn = false;
+                }
+
                 userLocationChanged(location);
             }
 
@@ -166,7 +175,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    public void createDot()
+    private void createDot()
     {
         if (currentLocation != null) {
             CircleOptions circleOptions = new CircleOptions();
@@ -179,13 +188,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    public void moveDot()
+    private void moveDot()
     {
         removableCircle.remove();
         createDot();
     }
 
-    public void moveCameraToLocation(LatLng location)
+    private void moveCameraToLocation(LatLng location)
     {
         CameraPosition position = new CameraPosition.Builder()
                 .target(location)      // Sets the center of the map to location user
@@ -215,25 +224,39 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     public void Selected(int i)
     {
         currentRoute = savedRoutes.Get(i);
-        helper.Execute(currentRoute.getStart(), currentRoute.getEnd());
-        OnListButtonClicked(null);
+        onListButtonClicked(null);
         mMap.clear();
-
-        if (currentLocation == null) {
-            currentLocation = currentRoute.getStart();
-        }
         createDot();
-        MarkerOptions marker = new MarkerOptions();
-        marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-        marker.position(currentRoute.getStart());
-        mMap.addMarker(marker);
-        marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-        marker.position(currentRoute.getEnd());
-        mMap.addMarker(marker);
+        addMarker(currentRoute.getStart(), BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+        addMarker(currentRoute.getEnd(), BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
         moveCameraToLocation(currentRoute.getStart());
+
+        DirectionsResult routeDirections = gmapsApi.execute(currentRoute.getStart(), currentRoute.getEnd());
+        drawPolyline(routeDirections.points, 15f, Color.RED);
+        currentRoutePolylineCache = routeDirections.points;
+
+        if (shouldDrawNavigatorLine(currentLocation, currentRoute.getStart())) {
+            isNavigatorDrawn = true;
+            DirectionsResult navigatorDirections = gmapsApi.execute(currentLocation, currentRoute.getStart());
+            drawPolyline(navigatorDirections.points, 15f, Color.BLACK);
+        } else {
+            isNavigatorDrawn = false;
+        }
     }
 
-    public void OnNewRoute(View view)
+    private boolean shouldDrawNavigatorLine(LatLng current, LatLng routeStart) {
+        final double epsilon = 0.0001;
+        return !(LatLngEx.isInRange(current, routeStart, epsilon, epsilon));
+    }
+
+    private void addMarker(LatLng position, BitmapDescriptor bmpDescriptor) {
+        MarkerOptions marker = new MarkerOptions();
+        marker.icon(bmpDescriptor);
+        marker.position(position);
+        mMap.addMarker(marker);
+    }
+
+    public void onNewRoute(View view)
     {
         Intent intent = new Intent(this, CreateRouteActivity.class);
         double lat = currentLocation.latitude;
@@ -243,28 +266,30 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         startActivityForResult(intent, 1);
     }
 
-    public void OnCenterButtonClicked(View view)
+    public void onCenterButtonClicked(View view)
     {
         moveCameraToLocation(currentLocation);
     }
 
-    public void OnListButtonClicked(View view)
+    public void onListButtonClicked(View view)
     {
         transaction = manager.beginTransaction();
         if(fragment.isHidden())
         {
             transaction.show(fragment);
             transaction.commit();
+            findViewById(R.id.route_controls).setVisibility(View.VISIBLE);
         }
         else
         {
             transaction.hide(fragment);
             transaction.commit();
+            findViewById(R.id.route_controls).setVisibility(View.INVISIBLE);
         }
 
     }
 
-    public void UpdateFragment()
+    public void updateRoutesFragment()
     {
         ArrayList<String> routeNames = new ArrayList<>();
         for(int i = 0; i < savedRoutes.Count(); ++i)
@@ -279,7 +304,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         fragment.SetRouteNames(routeNames);
         if(fragment.isHidden())
         {
-            OnListButtonClicked(null);
+            onListButtonClicked(null);
         }
     }
 
@@ -298,7 +323,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     boolean loop = data.getBooleanExtra("looproute", false);
                     Route route = new Route(new LatLng(startlat, startlon), new LatLng(endlat, endlon),distance, name, loop);
                     savedRoutes.Add(route);
-                    UpdateFragment();
+                    updateRoutesFragment();
                 }
                 break;
             }
@@ -306,7 +331,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void OnRouteFound(ArrayList<LatLng> points, double distance) {
+    public void onRouteFound(ArrayList<LatLng> points, double distance) {
         PolylineOptions lineOptions = new PolylineOptions();
         lineOptions.addAll(points);
         lineOptions.width(2);
@@ -314,12 +339,23 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         lineOptions.width(15);
         mMap.addPolyline(lineOptions);
     }
-    public void OnDeleteClick(View view)
+
+    private void drawPolyline(List<LatLng> points, float width, int color) {
+        PolylineOptions polylineOptions = new PolylineOptions();
+        polylineOptions.addAll(points);
+        polylineOptions.width(2);
+        polylineOptions.color(color);
+        polylineOptions.width(width);
+        mMap.addPolyline(polylineOptions);
+    }
+
+
+    public void onDeleteClick(View view)
     {
         if (currentRoute != null) {
             savedRoutes.Remove(currentRoute);
             currentRoute = null;
-            UpdateFragment();
+            updateRoutesFragment();
             mMap.clear();
             createDot();
         } else {
@@ -350,6 +386,17 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void moveAround(double lat, double lng) {
         currentLocation = new LatLng(lat, lng);
+        if (isNavigatorDrawn && !shouldDrawNavigatorLine(currentLocation, currentRoute.getStart())) {
+            mMap.clear();
+
+            addMarker(currentRoute.getStart(), BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+            addMarker(currentRoute.getEnd(), BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+
+            if (currentRoutePolylineCache != null) {
+                drawPolyline(currentRoutePolylineCache, 15f, Color.RED);
+            }
+            isNavigatorDrawn = false;
+        }
         updateLocationUI();
     }
 

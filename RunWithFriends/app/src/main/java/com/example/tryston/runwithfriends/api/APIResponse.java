@@ -1,4 +1,4 @@
-package com.example.tryston.runwithfriends;
+package com.example.tryston.runwithfriends.api;
 
 import java.net.HttpURLConnection;
 
@@ -29,10 +29,6 @@ public class APIResponse {
             this.val = val;
         }
 
-        public int getVal() {
-            return val;
-        }
-
         public static Code fromInt(int val) {
             switch(val) {
                 case 200:
@@ -58,13 +54,9 @@ public class APIResponse {
         }
 
     }
-    public String response;
-    public Code code;
-    public String message;
-
-    public APIResponse() {
-
-    }
+    public final String response;
+    public final Code code;
+    public final String message;
 
     public APIResponse(String response, Code code, String message) {
         this.response = response;
@@ -72,18 +64,8 @@ public class APIResponse {
         this.message = message;
     }
 
-
     public String getResponse() {
         return response;
     }
-
-    public Code getCode() {
-        return code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
 
 }

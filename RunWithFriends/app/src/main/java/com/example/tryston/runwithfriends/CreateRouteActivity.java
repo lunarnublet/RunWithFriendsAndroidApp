@@ -1,13 +1,11 @@
 package com.example.tryston.runwithfriends;
 
 import android.app.Activity;
-import android.app.ListFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -16,10 +14,11 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tryston.runwithfriends.maps.DirectionsResult;
+import com.example.tryston.runwithfriends.maps.GoogleMapsAPIHelper;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -28,26 +27,14 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-import org.json.JSONObject;
-import org.w3c.dom.Text;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.security.Key;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-public class CreateRouteActivity extends FragmentActivity implements OnMapReadyCallback, RouteReciever {
+public class CreateRouteActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     LatLng startPoint;
@@ -69,7 +56,7 @@ public class CreateRouteActivity extends FragmentActivity implements OnMapReadyC
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        helper = new GoogleMapsAPIHelper(this);
+        helper = new GoogleMapsAPIHelper(/*this*/);
 
         startPoint = null;
         endPoint = null;
@@ -205,8 +192,8 @@ public class CreateRouteActivity extends FragmentActivity implements OnMapReadyC
 
                     //Checks, whether start and end locations are captured
                     if(startPoint != null && endPoint != null){
-
-                        helper.Execute(startPoint, endPoint);
+                        DirectionsResult result = helper.execute(startPoint, endPoint);
+                        onRouteFound(result.points, result.distance);
                     }
                 }
             });
@@ -214,8 +201,7 @@ public class CreateRouteActivity extends FragmentActivity implements OnMapReadyC
 
     }
 
-    @Override
-    public void OnRouteFound(ArrayList<LatLng> points, double distance) {
+    public void onRouteFound(List<LatLng> points, double distance) {
         this.distance = distance;
         this.startPoint = points.get(0);
         this.endPoint = points.get(points.size() - 1);

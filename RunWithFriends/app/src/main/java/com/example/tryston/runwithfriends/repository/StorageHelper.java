@@ -1,4 +1,4 @@
-package com.example.tryston.runwithfriends;
+package com.example.tryston.runwithfriends.repository;
 
 import android.content.Context;
 import android.content.SharedPreferences;

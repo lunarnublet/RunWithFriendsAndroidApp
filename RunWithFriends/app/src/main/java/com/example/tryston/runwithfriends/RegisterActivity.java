@@ -1,16 +1,20 @@
 package com.example.tryston.runwithfriends;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.MalformedJsonException;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.tryston.runwithfriends.api.APIResponse;
+import com.example.tryston.runwithfriends.repository.CredentialsManager;
+import com.example.tryston.runwithfriends.repository.StorageHelper;
+
 import org.json.JSONObject;
+
+import com.example.tryston.runwithfriends.repository.Server;
 
 public class RegisterActivity extends AppCompatActivity {
 

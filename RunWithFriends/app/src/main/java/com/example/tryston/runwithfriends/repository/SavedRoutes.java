@@ -1,13 +1,18 @@
-package com.example.tryston.runwithfriends;
+package com.example.tryston.runwithfriends.repository;
 
 import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.tryston.runwithfriends.api.APIResponse;
+import com.example.tryston.runwithfriends.model.Route;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+
+import web.WebHelper;
 
 /**
  * Created by Tryston on 5/19/2017.
@@ -20,13 +25,13 @@ public class SavedRoutes {
 
     private Context context;
 
-    SavedRoutes(RouteServerCommunicator communicator)
+    public SavedRoutes(RouteServerCommunicator communicator)
     {
         this.communicator = communicator;
         this.routes = new ArrayList<>();
     }
 
-    void init(Context c) {
+    public void init(Context c) {
         this.context = c;
         authToken = StorageHelper.getToken(c);
         APIResponse response = communicator.getRoutes(authToken);

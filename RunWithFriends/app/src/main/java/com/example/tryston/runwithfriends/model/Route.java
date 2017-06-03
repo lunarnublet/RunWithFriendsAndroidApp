@@ -1,4 +1,4 @@
-package com.example.tryston.runwithfriends;
+package com.example.tryston.runwithfriends.model;
 
 import com.google.android.gms.maps.model.LatLng;
 

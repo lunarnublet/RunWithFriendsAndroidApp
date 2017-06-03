@@ -1,4 +1,6 @@
-package com.example.tryston.runwithfriends;
+package com.example.tryston.runwithfriends.repository;
+
+import com.example.tryston.runwithfriends.api.APIResponse;
 
 /**
  * Created by Tryston on 5/19/2017.

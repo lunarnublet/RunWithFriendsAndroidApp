@@ -1,11 +1,10 @@
-package com.example.tryston.runwithfriends;
+package com.example.tryston.runwithfriends.maps;
 
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.example.tryston.runwithfriends.RouteReceiver;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONObject;
 
@@ -25,16 +24,17 @@ import java.util.List;
 
 public class GoogleMapsAPIHelper {
 
-    ArrayList<LatLng> points;
-    double distance;
-    RouteReciever reciever;
-    public GoogleMapsAPIHelper(RouteReciever reciever)
+    private ArrayList<LatLng> points;
+    private double distance;
+    private RouteReceiver reciever;
+
+    public GoogleMapsAPIHelper(/*RouteReceiver receiver*/)
     {
         this.reciever = reciever;
         points = new ArrayList<>();
         distance = 0.0;
     }
-    public void Execute(LatLng origin, LatLng dest)
+    public DirectionsResult execute(LatLng origin, LatLng dest)
     {
         // Getting URL to the Google Directions API
         String url = getDirectionsUrl(origin, dest);
@@ -42,7 +42,15 @@ public class GoogleMapsAPIHelper {
         DownloadTask downloadTask = new DownloadTask();
 
         // Start downloading json data from Google Directions API
-        downloadTask.execute(url);
+        try {
+            String dlResult = downloadTask.execute(url).get();
+            ParserTask parserTask = new ParserTask();
+
+            List<LatLng> points = parserTask.execute(dlResult).get();
+            return new DirectionsResult(points, distance);
+        } catch (Exception e) {
+            return null;
+        }
     }
     private String getDirectionsUrl(LatLng origin, LatLng dest){
 
@@ -140,14 +148,15 @@ public class GoogleMapsAPIHelper {
     }
 
     /** A class to parse the Google Places in JSON format */
-    private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String,String>>> >{
+    private class ParserTask extends AsyncTask<String, Integer, List<LatLng> >{
 
         // Parsing the data in non-ui thread
         @Override
-        protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
+        protected List<LatLng> doInBackground(String... jsonData) {
 
             JSONObject jObject;
             List<List<HashMap<String, String>>> routes = null;
+            List<LatLng> points = new ArrayList<LatLng>();
 
             try{
                 jObject = new JSONObject(jsonData[0]);
@@ -156,42 +165,60 @@ public class GoogleMapsAPIHelper {
                 // Starts parsing data
                 routes = parser.parse(jObject);
                 distance = parser.getDistance();
+
+                for(int i=0; i < routes.size(); i++){
+
+                    // Fetching i-th route
+                    List<HashMap<String, String>> path = routes.get(i);
+
+                    // Fetching all the points in i-th route
+                    for(int j=0;j<path.size();j++){
+                        HashMap<String,String> point = path.get(j);
+
+                        double lat = Double.parseDouble(point.get("lat"));
+                        double lng = Double.parseDouble(point.get("lng"));
+                        LatLng position = new LatLng(lat, lng);
+
+                        points.add(position);
+                    }
+
+                }
             }catch(Exception e){
                 e.printStackTrace();
             }
-            return routes;
+            return points;
         }
 
         // Executes in UI thread, after the parsing process
-        @Override
-        protected void onPostExecute(List<List<HashMap<String, String>>> result) {
+//        @Override
+//        protected void onPostExecute(List<List<HashMap<String, String>>> result) {
 
             // Traversing through all the routes
-            for(int i=0;i<result.size();i++){
-                points = new ArrayList<LatLng>();
+//            for(int i=0;i<result.size();i++){
+//                points = new ArrayList<LatLng>();
+//
+//                // Fetching i-th route
+//                List<HashMap<String, String>> path = result.get(i);
+//
+//                // Fetching all the points in i-th route
+//                for(int j=0;j<path.size();j++){
+//                    HashMap<String,String> point = path.get(j);
+//
+//                    double lat = Double.parseDouble(point.get("lat"));
+//                    double lng = Double.parseDouble(point.get("lng"));
+//                    LatLng position = new LatLng(lat, lng);
+//
+//                    points.add(position);
+//                }
+//
+//            }
 
-                // Fetching i-th route
-                List<HashMap<String, String>> path = result.get(i);
-
-                // Fetching all the points in i-th route
-                for(int j=0;j<path.size();j++){
-                    HashMap<String,String> point = path.get(j);
-
-                    double lat = Double.parseDouble(point.get("lat"));
-                    double lng = Double.parseDouble(point.get("lng"));
-                    LatLng position = new LatLng(lat, lng);
-
-                    points.add(position);
-                }
-
-            }
-
-            RouteFound();
-        }
+//            RouteFound();
+//        }
     }
 
     private void RouteFound() {
-        reciever.OnRouteFound(points, distance);
+        reciever.onRouteFound(points, distance);
     }
 }
 

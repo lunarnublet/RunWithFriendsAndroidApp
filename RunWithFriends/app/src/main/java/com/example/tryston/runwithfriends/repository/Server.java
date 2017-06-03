@@ -1,27 +1,22 @@
-package com.example.tryston.runwithfriends;
+package com.example.tryston.runwithfriends.repository;
 
-import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.Log;
-import android.widget.ImageView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
+import com.example.tryston.runwithfriends.api.APIResponse;
+import com.example.tryston.runwithfriends.model.Route;
+
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.HashMap;
-import java.util.Map;
+
+import web.WebHelper;
 
 /**
  * Created by Tryston on 5/19/2017.
@@ -170,7 +165,7 @@ public class Server implements RouteServerCommunicator, CredentialsManager {
         protected APIResponse doInBackground(String... params) {
             HttpURLConnection connection = null;
             StringBuilder result = new StringBuilder(512);
-            APIResponse response = new APIResponse();
+            APIResponse response = null;
 
             try {
                 URL url = new URL(params[0]);
@@ -207,29 +202,33 @@ public class Server implements RouteServerCommunicator, CredentialsManager {
                     char c = (char) in;
                     result.append(c);
                 }
-                response.response = result.toString();
-                response.code = APIResponse.Code.fromInt(connection.getResponseCode());
-                response.message = APIResponse.ALRIGHT;
+
+                response = new APIResponse(result.toString(),
+                        APIResponse.Code.fromInt(connection.getResponseCode()),
+                        APIResponse.ALRIGHT);
 
             } catch (Exception e) {
                 Log.e("SERVER", e.toString());
-                response.message = APIResponse.FAIL;
                 connection.getErrorStream();
+
+                int errCode = 1;
                 try {
-                    response.code = APIResponse.Code.fromInt(connection.getResponseCode());
+                    errCode = connection.getResponseCode();
                 } catch (IOException ioe) {
-                    response.code = APIResponse.Code.UNKNOWN;
+                    Log.e("SERVER", ioe.toString());
                 }
+
                 StringBuilder errResponse = new StringBuilder();
                 try {
                     int in;
                     while ((in = connection.getErrorStream().read()) != -1) {
                         errResponse.append((char)in);
                     }
-                    response.response = errResponse.toString();
                 } catch (IOException ioe) {
-                    response.response = "";
+                    errResponse.delete(0, errResponse.length());
                 }
+
+                response = new APIResponse(errResponse.toString(), APIResponse.Code.fromInt(errCode), APIResponse.FAIL);
             }
 
             return response;

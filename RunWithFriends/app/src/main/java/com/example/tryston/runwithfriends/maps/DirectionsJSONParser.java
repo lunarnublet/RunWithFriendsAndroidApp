@@ -1,4 +1,4 @@
-package com.example.tryston.runwithfriends;
+package com.example.tryston.runwithfriends.maps;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +16,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class DirectionsJSONParser {
 
-    double distance = 0.0;
+    private double distance = 0.0;
     /** Receives a JSONObject and returns a list of lists containing latitude and longitude */
     public List<List<HashMap<String,String>>> parse(JSONObject jObject){
 
