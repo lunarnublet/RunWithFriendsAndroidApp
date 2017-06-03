@@ -1,8 +1,8 @@
 package com.example.tryston.runwithfriends;
 
 import android.content.Context;
-import android.os.storage.StorageManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -18,6 +18,8 @@ public class SavedRoutes {
     private RouteServerCommunicator communicator;
     private String authToken;
 
+    private Context context;
+
     SavedRoutes(RouteServerCommunicator communicator)
     {
         this.communicator = communicator;
@@ -25,6 +27,7 @@ public class SavedRoutes {
     }
 
     void init(Context c) {
+        this.context = c;
         authToken = StorageHelper.getToken(c);
         APIResponse response = communicator.getRoutes(authToken);
 
@@ -50,6 +53,7 @@ public class SavedRoutes {
                 break;
             default:
                 Log.e("ROUTES", "Failed to get routes");
+                Toast.makeText(context, "Could not connect to server", Toast.LENGTH_LONG).show();
                 break;
         }
     }
@@ -61,12 +65,17 @@ public class SavedRoutes {
         {
             routes.add(route);
         }
+        else {
+            Toast.makeText(context, "Failed to add route", Toast.LENGTH_LONG).show();
+        }
     }
     public void Remove(Route route)
     {
         if (communicator.remove(route, authToken))
         {
             routes.remove(route);
+        } else {
+            Toast.makeText(context, "Failed to remove route", Toast.LENGTH_LONG).show();
         }
     }
     public Route Get(int i)
