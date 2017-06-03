@@ -16,6 +16,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.view.KeyEvent;
 import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -52,16 +53,21 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     GoogleMapsAPIHelper helper;
 
-
+    private static final int LOCATION_SERVICE_REQUEST = 92;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        manager = getFragmentManager();
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
+
+        if (mapFragment == null) {
+            mapFragment = SupportMapFragment.newInstance();
+        }
         mapFragment.getMapAsync(this);
 
         helper = new GoogleMapsAPIHelper(this);
@@ -70,7 +76,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         savedRoutes = new SavedRoutes(server);
         savedRoutes.init(this);
 
-        manager = getFragmentManager();
         transaction = manager.beginTransaction();
         fragment = new SavedRoutesFragment();
 
@@ -148,11 +153,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             if ((ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
                 Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                currentLocation = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
-                createDot();
-                moveCameraToLocation(currentLocation);
+                if (lastLocation != null) {
+                    currentLocation = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
+                    createDot();
+                    moveCameraToLocation(currentLocation);
+                }
             } else {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_SERVICE_REQUEST);
             }
         }
 
@@ -160,13 +167,15 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void createDot()
     {
-        CircleOptions circleOptions = new CircleOptions();
-        circleOptions.center(currentLocation);
-        circleOptions.fillColor(Color.rgb(0,206,209));
-        circleOptions.radius(9);
-        circleOptions.strokeColor(Color.rgb(0,139,139));
-        circleOptions.strokeWidth(7);
-        removableCircle = mMap.addCircle(circleOptions);
+        if (currentLocation != null) {
+            CircleOptions circleOptions = new CircleOptions();
+            circleOptions.center(currentLocation);
+            circleOptions.fillColor(Color.rgb(0,206,209));
+            circleOptions.radius(9);
+            circleOptions.strokeColor(Color.rgb(0,139,139));
+            circleOptions.strokeWidth(7);
+            removableCircle = mMap.addCircle(circleOptions);
+        }
     }
 
     public void moveDot()
@@ -189,7 +198,16 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     public void userLocationChanged(Location location)
     {
         currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-        moveDot();
+        updateLocationUI();
+    }
+
+    private void updateLocationUI() {
+        if (removableCircle == null) {
+            createDot();
+            moveCameraToLocation(currentLocation);
+        } else {
+            moveDot();
+        }
     }
 
     @Override
@@ -199,6 +217,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         helper.Execute(currentRoute.getStart(), currentRoute.getEnd());
         OnListButtonClicked(null);
         mMap.clear();
+
+        if (currentLocation == null) {
+            currentLocation = currentRoute.getStart();
+        }
         createDot();
         MarkerOptions marker = new MarkerOptions();
         marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
@@ -208,9 +230,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         marker.position(currentRoute.getEnd());
         mMap.addMarker(marker);
         moveCameraToLocation(currentRoute.getStart());
-
-
-
     }
 
     public void OnNewRoute(View view)
@@ -302,5 +321,53 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         UpdateFragment();
         mMap.clear();
         createDot();
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        final double step = .0001;
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_W:
+                moveAround(currentLocation.latitude + step, currentLocation.longitude);
+                return true;
+            case KeyEvent.KEYCODE_A:
+                moveAround(currentLocation.latitude, currentLocation.longitude - step);
+                return true;
+            case KeyEvent.KEYCODE_S:
+                moveAround(currentLocation.latitude - step, currentLocation.longitude);
+                return true;
+            case KeyEvent.KEYCODE_D:
+                moveAround(currentLocation.latitude, currentLocation.longitude + step);
+                return true;
+            default:
+                return super.onKeyUp(keyCode, event);
+        }
+    }
+
+    private void moveAround(double lat, double lng) {
+        currentLocation = new LatLng(lat, lng);
+        updateLocationUI();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case LOCATION_SERVICE_REQUEST: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    if ((ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
+                        Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                        if (lastLocation != null) {
+                            currentLocation = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
+                            createDot();
+                            moveCameraToLocation(currentLocation);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
