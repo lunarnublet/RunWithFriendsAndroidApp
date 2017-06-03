@@ -36,7 +36,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         context = getApplicationContext();
 
-        manager = new Server("http://10.0.2.2:19842/");
+        manager = new Server("http://10.0.2.2:19842/", this);
         fileName = "tokenfile.csv";
 
 //        StorageHelper.putToken(this, "");

@@ -9,7 +9,7 @@ import java.net.HttpURLConnection;
 public class APIResponse {
 
     public static final String ALRIGHT = "it worked";
-    public static final String FAIL = "it failed";
+    public static final String FAIL = "Failed to connect to server";
 
     public enum Code {
         UNKNOWN(1),

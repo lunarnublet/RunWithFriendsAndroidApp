@@ -1,7 +1,9 @@
 package com.example.tryston.runwithfriends.repository;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.tryston.runwithfriends.api.APIResponse;
 import com.example.tryston.runwithfriends.model.Route;
@@ -26,10 +28,12 @@ public class Server implements RouteServerCommunicator, CredentialsManager {
 
     String connectionString;
     DownloadMaterial download;
-    public Server(String connectionString)
+    private Context context;
+    public Server(String connectionString, Context context)
     {
         this.connectionString = connectionString;
         download = new DownloadMaterial();
+        this.context = context;
     }
 
     @Override
@@ -172,6 +176,7 @@ public class Server implements RouteServerCommunicator, CredentialsManager {
                 connection = (HttpURLConnection) url.openConnection();
 
                 connection.setRequestMethod(params[1]);
+                connection.setConnectTimeout(5000);
 
                 if (params.length > 3) {
                     if (params[2] != null) {
@@ -225,6 +230,8 @@ public class Server implements RouteServerCommunicator, CredentialsManager {
                         errResponse.append((char)in);
                     }
                 } catch (IOException ioe) {
+                    errResponse.delete(0, errResponse.length());
+                } catch (NullPointerException npe) {
                     errResponse.delete(0, errResponse.length());
                 }
 

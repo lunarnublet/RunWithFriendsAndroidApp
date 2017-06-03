@@ -83,7 +83,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         gmapsApi = new GoogleMapsAPIHelper(/*this*/);
 
-        savedRoutes = new SavedRoutes(new Server("http://10.0.2.2:19842/"));
+        savedRoutes = new SavedRoutes(new Server("http://10.0.2.2:19842/", this));
         savedRoutes.init(this);
 
         transaction = manager.beginTransaction();

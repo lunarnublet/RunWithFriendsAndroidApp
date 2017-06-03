@@ -26,7 +26,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     public void OnRegisterClick(View view)
     {
-        CredentialsManager manager = new Server("http://10.0.2.2:19842/");
+        CredentialsManager manager = new Server("http://10.0.2.2:19842/", this);
         EditText editText = (EditText)findViewById(R.id.UsernameEdit);
         String username = editText.getText().toString().trim();
         editText = (EditText)findViewById(R.id.PasswordEdit);
